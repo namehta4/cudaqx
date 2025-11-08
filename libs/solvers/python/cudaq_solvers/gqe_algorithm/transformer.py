@@ -134,26 +134,20 @@ class Transformer(LightningModule):
             RuntimeError: If cost function returns invalid type
         """
         res = []
-        if cudaq.mpi.is_initialized():
-            rank = cudaq.mpi.rank()
-            numRanks = cudaq.mpi.num_ranks()
-            total_elements = len(idx_output)
-            elements_per_rank = total_elements // numRanks
-            remainder = total_elements % numRanks
-            start = rank * elements_per_rank + min(rank, remainder)
-            end = start + elements_per_rank + (1 if rank < remainder else 0)
-            # This MPI rank owns rows[start:end]
-            res = [
-                self._cost([pool[j]
-                            for j in row], qpu_id=i % self.numQPUs)
-                for i, row in enumerate(idx_output[start:end])
-            ]
-        else:
-            res = [
-                self._cost([pool[j]
-                            for j in row], qpu_id=i % self.numQPUs)
-                for i, row in enumerate(idx_output)
-            ]
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        size = comm.Get_size()
+        total_elements = len(idx_output)
+        elements_per_rank = total_elements // size
+        remainder = total_elements % size
+        start = rank * elements_per_rank + min(rank, remainder)
+        end = start + elements_per_rank + (1 if rank < remainder else 0)
+        # This MPI rank owns rows[start:end]
+        res = [
+            self._cost([pool[j]
+                        for j in row], qpu_id=i % self.numQPUs)
+            for i, row in enumerate(idx_output[start:end])
+        ]
 
         if isinstance(res[0], tuple) and len(res[0]) == 2:
             res = [
@@ -166,9 +160,8 @@ class Transformer(LightningModule):
                 'Invalid return type detected from user cost function.')
 
         # Need to perform MPI all gather here
-        if cudaq.mpi.is_initialized():
-            res = MPI.COMM_WORLD.allgather(res)
-            res = [x for xs in res for x in xs]
+        gathered_res = comm.allgather(res)
+        res = [x for xs in gathered_res for x in xs]
 
         return torch.tensor(res, dtype=torch.float)
 
