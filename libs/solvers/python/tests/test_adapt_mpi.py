@@ -20,7 +20,7 @@ import subprocess
 
 import pytest
 
-_MPI_CMD = ["mpiexec", "--allow-run-as-root", "--oversubscribe"]
+_MPI_CMD = ["mpiexec"]
 
 
 def _mpi_available():

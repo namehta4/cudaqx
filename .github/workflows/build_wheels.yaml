@@ -305,7 +305,7 @@ jobs:
         shell: bash
         run: |
           apt update
-          apt install -y --no-install-recommends libgfortran5 unzip openmpi-bin libopenmpi3
+          apt install -y --no-install-recommends libgfortran5 unzip mpich
           apt install -y --no-install-recommends ca-certificates
           # If this is x86_64, then install libquadmath0. This is normally
           # installed by Ubuntu Python, but the action/setup-python package does
@@ -313,7 +313,7 @@ jobs:
           if [ "$(uname -m)" == "x86_64" ]; then
             apt install -y --no-install-recommends libquadmath0
           fi
-  
+
       - name: Download CUDA-Q wheels
         if: ${{ inputs.cudaq_wheels == 'Custom' }}
         uses: actions/download-artifact@v4
@@ -418,7 +418,7 @@ jobs:
         shell: bash
         run: |
           apt update
-          apt install -y --no-install-recommends libgfortran5 unzip openmpi-bin libopenmpi3
+          apt install -y --no-install-recommends libgfortran5 unzip mpich
           apt install -y --no-install-recommends ca-certificates
           # If this is x86_64, then install libquadmath0. This is normally
           # installed by Ubuntu Python, but the action/setup-python package does

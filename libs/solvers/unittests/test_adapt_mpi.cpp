@@ -81,15 +81,15 @@ TEST_P(SolversTester, checkSimpleAdaptMpi_H2Sto3g) {
   // Probe with 2 ranks to verify MPI can actually launch multi-rank jobs
   // (catches missing PML transports, absent cudaq MPI plugin, etc.)
   std::string self = ::testing::internal::GetArgvs()[0];
-  std::string probeCmd = "mpiexec --allow-run-as-root --oversubscribe -np 2 " +
-                         self + " --mpi-probe > /dev/null 2>&1";
+  std::string probeCmd = "mpiexec -np 2 " + self +
+                         " --mpi-probe > /dev/null 2>&1";
   if (std::system(probeCmd.c_str()) != 0)
     GTEST_SKIP() << "MPI multi-rank launch not functional, skipping MPI test";
 
   int numRanks = GetParam();
 
-  std::string cmd = "mpiexec --allow-run-as-root --oversubscribe -np " +
-                    std::to_string(numRanks) + " " + self + " --mpi-worker";
+  std::string cmd = "mpiexec -np " + std::to_string(numRanks) + " " + self +
+                    " --mpi-worker";
   int rc = std::system(cmd.c_str());
   EXPECT_EQ(rc, 0) << "mpiexec failed with exit code " << rc;
 }

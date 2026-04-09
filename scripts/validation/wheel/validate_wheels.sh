@@ -73,7 +73,7 @@ test_examples() {
         conda_name=cudaqx-env-$python_version
         conda create -y -n $conda_name python=$python_version pip
         conda install -y -n $conda_name -c "nvidia/label/cuda-${CUDA_VERSION}" cuda
-        conda install -y -n $conda_name -c conda-forge mpi4py openmpi">=5.0.3" cxx-compiler
+        conda install -y -n $conda_name -c conda-forge mpi4py mpich cxx-compiler
         conda env config vars set -n $conda_name LD_LIBRARY_PATH="$CONDA_PREFIX/envs/$conda_name/lib:$LD_LIBRARY_PATH"
         conda env config vars set -n $conda_name MPI_PATH=$CONDA_PREFIX/envs/$conda_name
         conda activate $conda_name
@@ -90,7 +90,7 @@ test_examples() {
         pip install cudaq-qec[tensor_network_decoder,trt_decoder] --find-links /root/wheels
         pip install cudaq-solvers[gqe] --find-links /root/wheels
         source $CONDA_PREFIX/lib/python${python_version}/site-packages/distributed_interfaces/activate_custom_mpi.sh
-        export OMPI_MCA_opal_cuda_support=true OMPI_MCA_btl='^openib'
+        export MPIR_CVAR_ENABLE_GPU=1
 
         # Needed for tests:
         pip install pytest
